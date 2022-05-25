@@ -1,0 +1,40 @@
+import React from 'react';
+import { client } from '../lib/client';
+import { Product, FooterBanner, HeroBanner } from '../components';
+
+import Head from 'next/head';
+
+const Home = ({ products, bannerData }) => (
+  <div>
+    <div>
+      <Head>
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+      </Head>
+    </div>
+    <HeroBanner heroBanner={bannerData.length && bannerData[0]} />
+    <div className="products-heading">
+      <h2>Top sản phẩm bán chạy</h2>
+      <p>Lựa chọn tốt nhất</p>
+    </div>
+
+    <div className="products-container">
+      {products?.map((product) => <Product key={product._id} product={product} />)}
+    </div>
+
+    <FooterBanner footerBanner={bannerData && bannerData[0]} />
+  </div>
+);
+
+//sử dụng getServerSideProps từ nextjs để render trước trang theo mỗi yêu cầu
+export const getServerSideProps = async () => {
+  const query = '*[_type == "product"]';   //lấy tất cả sản phẩm từ sanity
+  const products = await client.fetch(query);
+
+  const bannerQuery = '*[_type == "banner"]';   //lấy tất cả banner từ sanity
+  const bannerData = await client.fetch(bannerQuery);
+  return {
+    props: { products, bannerData }
+  }
+}
+
+export default Home;
